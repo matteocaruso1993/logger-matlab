@@ -100,7 +100,9 @@ classdef Logger < handle
             
         end
             
-        
+        function zipLog(obj)
+            obj.compressAndDistributeLog()
+        end
         
     end
     
@@ -112,6 +114,11 @@ classdef Logger < handle
         
         function clearLog()
             fclose(fopen('log/log.log','w'));
+        end
+        
+        function compressAndDistributeLog()
+            t = datetime('now');
+            zip(strcat('log-',datestr(t,'dd-mm-yy_HH-MM-SS'),'.zip'),'log');
         end
     end
     
