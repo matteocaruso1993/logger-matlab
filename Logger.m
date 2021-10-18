@@ -19,7 +19,7 @@ classdef Logger < handle
     %email: matteo.caruso@phd.units.it
     
     
-    properties (Access = private)
+    properties (Access = public)
         debug_level = 0;
         info_level = 1;
         log_level = 2;
@@ -28,14 +28,32 @@ classdef Logger < handle
         fatal_level = 5;
         cur_level = NaN;
         skip_entries = 3;
-        writeToFile = true;
-        displayToWindow = true;
-        valid_levels = [0,1,2,3,4,5];
+        writeToFile;
+        displayToWindow;
+        valid_levels;
     end
     
     methods
-        function obj = Logger()
+        function obj = Logger(varargin)
             %Class constructor
+            p = inputParser;
+            validateLogical = @(x) islogical(x);
+            validateString = @(x) isstring(x) || @(x) ischar(x);
+            validateLevels = @(x) validateInLevel(x);
+            
+            addOptional(p,'log2file',true, validateLogical);
+            addOptional(p,'log2command',true,validateLogical);
+            addOptional(p,'showLevels',[0,1,2,3,4,5],validateLevels);
+            
+            parse(p,varargin{:});
+            
+            a = p.Results;
+            assignin('base','a',a);
+            
+            obj.enableFileLogging(a.log2file);
+            obj.enableCommandWindowLogging(a.log2command);
+            obj.filterLevels(a.showLevels);
+            
             if ~exist('log','dir')
                 mkdir('log');
                 fclose(fopen('log/log.log', 'w'));
@@ -44,6 +62,9 @@ classdef Logger < handle
                     fclose(fopen('log/log.log', 'w'));
                 end
             end
+            
+            
+            
         end
         
         
@@ -100,15 +121,17 @@ classdef Logger < handle
         function filterLevels(obj,levels)
             %Method to filter the messages we want to display or write to
             %file
-            if isstring(levels)
-                if levels('all')
+            if isstring(levels) || ischar(levels)
+                if strcmp(levels,'all')
                     obj.valid_levels = [1,2,3,4,5];
-                elseif levels('none')
+                elseif strcmp(levels,'none')
                     obj.valid_levels = [];
                 end
-            else
+            elseif isnumeric(levels)
                 if ~isscalar(levels)
                     obj.valid_levels = levels;
+                else
+                    obj.valid_levels = [levels];
                 end
             end
             
@@ -200,6 +223,24 @@ classdef Logger < handle
                 fwrite(f,message_to_log_file);
                 fclose(f);
             end
+        end
+    end
+end
+
+
+function out = validateInLevel(in_array)
+    if isnumeric(in_array)
+        out = true;
+    else
+        if isstring(in_array) || ischar(in_array)
+            if any(validatestring(in_array,{'all','none'}))
+                out = true;
+            else
+                out = false;
+            end
+        else
+            
+            out = false;
         end
     end
 end
