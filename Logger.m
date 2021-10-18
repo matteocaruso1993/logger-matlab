@@ -1,6 +1,23 @@
 classdef Logger < handle
-    %UNTITLED3 Summary of this class goes here
-    %   Detailed explanation goes here
+    %======================================================================
+    % A simple and helpful logger MATLAB based class. The logger can
+    %selectively print the log messages into the command window and in
+    %log.log file.
+    % The logger also display information on the system time at which it
+    % has been called; moreover it implements a basic function call stack
+    % which enables to navigate easily to the function that has called the
+    % logger.
+    %
+    %levels: DEBUG, INFO, LOG, WARNING, ERROR, FATAL
+    %
+    %Basic Usage:
+    %   l = Logger();
+    %   l.info('Hello World');
+    %
+    %======================================================================
+    %author: Matteo Caruso
+    %email: matteo.caruso@phd.units.it
+    
     
     properties (Access = private)
         debug_level = 0;
@@ -18,8 +35,7 @@ classdef Logger < handle
     
     methods
         function obj = Logger()
-            %UNTITLED3 Construct an instance of this class
-            %   Detailed explanation goes here
+            %Class constructor
             if ~exist('log','dir')
                 mkdir('log');
                 fclose(fopen('log/log.log', 'w'));
@@ -32,60 +48,58 @@ classdef Logger < handle
         
         
         function debug(obj,message)
-            %METHOD1 Summary of this method goes here
-            %   Detailed explanation goes here
+            %Debug method 
             obj.cur_level = obj.debug_level;
             obj.log(message);
         end
         
         function info(obj,message)
-            %METHOD1 Summary of this method goes here
-            %   Detailed explanation goes here
+            %Info method
             obj.cur_level = obj.info_level;
             obj.log(message);
         end
         
         function logging(obj,message)
-            %METHOD1 Summary of this method goes here
-            %   Detailed explanation goes here
+            %Logging method
             obj.cur_level = obj.log_level;
             obj.log(message);
         end
         
         function warning(obj,message)
-            %METHOD1 Summary of this method goes here
-            %   Detailed explanation goes here
+            %Warning method
             obj.cur_level = obj.warning_level;
             obj.log(message);
         end
         
         function error(obj,message)
-            %METHOD1 Summary of this method goes here
-            %   Detailed explanation goes here
+            %Error method
             obj.cur_level = obj.error_level;
             obj.log(message);
         end
         
         function fatal(obj,message)
-            %METHOD1 Summary of this method goes here
-            %   Detailed explanation goes here
+            %Fatal method
             obj.cur_level = obj.fatal_level;
             obj.log(message);
         end
         
         function enableFileLogging(obj, flag)
+            %Method to enable/disable the file logging 
             if islogical(flag)
                 obj.writeToFile = flag;
             end
         end
         
         function enableCommandWindowLogging(obj, flag)
+            %Method to enable/disable the file logging
             if islogical(flag)
                 obj.displayToWindow = flag;
             end
         end
         
         function filterLevels(obj,levels)
+            %Method to filter the messages we want to display or write to
+            %file
             if isstring(levels)
                 if levels('all')
                     obj.valid_levels = [1,2,3,4,5];
@@ -101,6 +115,7 @@ classdef Logger < handle
         end
             
         function zipLog(obj)
+            %Method to zip the logs files
             obj.compressAndDistributeLog()
         end
         
