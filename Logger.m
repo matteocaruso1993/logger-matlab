@@ -19,7 +19,7 @@ classdef Logger < handle
     %email: matteo.caruso@phd.units.it
     
     
-    properties (Access = public)
+    properties (Access = private)
         debug_level = 0;
         info_level = 1;
         log_level = 2;
